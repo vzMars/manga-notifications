@@ -51,6 +51,8 @@ module.exports = {
     await interaction.deferReply();
     const mangaTitle = interaction.options.getString('manga-title');
     const source = interaction.options.getString('source');
+    const textChannelID = interaction.options.getChannel('text-channel').id;
+    let manga = { source, textChannelID };
 
     try {
       const results = await searchManga(mangaTitle);
@@ -93,9 +95,37 @@ module.exports = {
           )
       );
 
-      await interaction.editReply({
+      const message = await interaction.editReply({
         embeds: [resultsEmbed],
         components: [row],
+      });
+
+      const collector = message.createMessageComponentCollector({
+        componentType: ComponentType.StringSelect,
+        time: 15000,
+      });
+
+      collector.on('collect', async (i) => {
+        const id = i.values[0];
+        const selectedManga = await getMangaDetails(id);
+        const title = selectedManga.attributes.title.en;
+        const author = selectedManga.relationships[0].attributes.name;
+        const description = selectedManga.attributes.description.en;
+        const cover = `https://mangadex.org/covers/${id}/${selectedManga.relationships[2].attributes.fileName}`;
+        manga = { ...manga, id, title, author, description, cover };
+        console.log(manga);
+
+        const selectedMangaEmbed = new EmbedBuilder()
+          .setTitle(`Did you mean to add \`${title}\`?`)
+          .setColor('Red')
+          .setDescription(description)
+          .setImage(cover);
+
+        await i.update({ embeds: [selectedMangaEmbed], components: [] });
+      });
+
+      collector.on('end', (collected) => {
+        console.log(`Collected ${collected.size} items`);
       });
     } catch (error) {
       await interaction.editReply(error.message);
