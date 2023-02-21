@@ -2,8 +2,14 @@ const {
   SlashCommandBuilder,
   ChannelType,
   EmbedBuilder,
+  ActionRowBuilder,
+  StringSelectMenuBuilder,
+  ComponentType,
 } = require('discord.js');
-const { searchManga } = require('../controllers/mangaController');
+const {
+  searchManga,
+  getMangaDetails,
+} = require('../controllers/mangaController');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -13,7 +19,7 @@ module.exports = {
     )
     .addStringOption((option) =>
       option
-        .setName('manga')
+        .setName('manga-title')
         .setDescription(
           'The name of the manga you want to receive new chapter notifications from.'
         )
@@ -42,21 +48,25 @@ module.exports = {
         .setRequired(true)
     ),
   async execute(interaction) {
-    const manga = interaction.options.getString('manga');
+    await interaction.deferReply();
+    const mangaTitle = interaction.options.getString('manga-title');
     const source = interaction.options.getString('source');
 
     try {
-      const results = await searchManga(manga);
-      let resultsDescription = 'Select the manga you want to subscribe to.\n';
+      const results = await searchManga(mangaTitle);
 
       if (!results?.length) {
         throw Error('No results found.');
       }
 
+      let resultsDescription = 'Select the manga you want to subscribe to.\n';
       for (let i = 0; i < results.length; i++) {
         const title = results[i].attributes.title.en;
+        const year = results[i].attributes.year
+          ? `(${results[i].attributes.year})`
+          : '(Unknown)';
 
-        resultsDescription += `${i + 1}: ${title}\n`;
+        resultsDescription += `${i + 1}: ${title} ${year}\n `;
       }
 
       const resultsEmbed = new EmbedBuilder()
@@ -64,9 +74,31 @@ module.exports = {
         .setColor('Red')
         .setDescription(resultsDescription);
 
-      await interaction.reply({ embeds: [resultsEmbed] });
+      const row = new ActionRowBuilder().addComponents(
+        new StringSelectMenuBuilder()
+          .setCustomId('select-manga')
+          .setPlaceholder('Select a manga.')
+          .addOptions(
+            results.map((result, i) => {
+              return {
+                label: `${i + 1}. ${result.attributes.title.en}`,
+                description: `${
+                  result.attributes.year
+                    ? `(${result.attributes.status})`
+                    : '(Unknown)'
+                }`,
+                value: result.id,
+              };
+            })
+          )
+      );
+
+      await interaction.editReply({
+        embeds: [resultsEmbed],
+        components: [row],
+      });
     } catch (error) {
-      await interaction.reply(error.message);
+      await interaction.editReply(error.message);
     }
   },
 };
