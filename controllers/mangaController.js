@@ -22,7 +22,26 @@ const getMangaDetails = async (id) => {
   }
 };
 
+const getLatestChapter = async (id) => {
+  const url = `${baseUrl}/manga/${id}/feed?translatedLanguage[]=en&order[chapter]=desc&limit=1`;
+  let latestChapterId = '';
+  let latestChapter = '0';
+  try {
+    const response = await axios.get(url);
+
+    if (response.data.data?.length) {
+      latestChapterId = response.data.data[0].id;
+      latestChapter = response.data.data[0].attributes.chapter;
+    }
+
+    return { latestChapterId, latestChapter };
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports = {
   searchManga,
   getMangaDetails,
+  getLatestChapter,
 };
