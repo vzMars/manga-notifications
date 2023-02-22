@@ -5,13 +5,12 @@ const {
   ActionRowBuilder,
   StringSelectMenuBuilder,
   ComponentType,
-  ButtonBuilder,
-  ButtonStyle,
 } = require('discord.js');
 const {
   searchManga,
   getMangaDetails,
 } = require('../controllers/mangaController');
+const { errorEmbed } = require('../components/embeds');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -50,6 +49,7 @@ module.exports = {
         .setRequired(true)
     ),
   async execute(interaction) {
+    await interaction.deferReply();
     const mangaTitle = interaction.options.getString('manga-title');
     const source = interaction.options.getString('source');
     const textChannelID = interaction.options.getChannel('text-channel').id;
@@ -74,7 +74,7 @@ module.exports = {
 
       const resultsEmbed = new EmbedBuilder()
         .setTitle('Search Results')
-        .setColor('Red')
+        .setColor('White')
         .setDescription(resultsDescription);
 
       const selectRow = new ActionRowBuilder().addComponents(
@@ -96,61 +96,56 @@ module.exports = {
           )
       );
 
-      await interaction.reply({
+      await interaction.editReply({
         embeds: [resultsEmbed],
         components: [selectRow],
       });
 
       const message = await interaction.fetchReply();
 
-      const collector = message.createMessageComponentCollector({
-        componentType: ComponentType.StringSelect,
-        time: 15000,
-      });
+      const filter = (i) => {
+        i.deferUpdate();
+        return i.customId === 'select-manga';
+      };
 
-      collector.on('collect', async (i) => {
-        const id = i.values[0];
-        const selectedManga = await getMangaDetails(id);
-        const title = selectedManga.attributes.title.en;
-        const author = selectedManga.relationships.find(
-          (relationship) => relationship.type === 'author'
-        ).attributes.name;
-        const description = selectedManga.attributes.description.en
-          ? selectedManga.attributes.description.en
-          : 'Description Unavailable';
-        const { fileName } = selectedManga.relationships.find(
-          (relationship) => relationship.type === 'cover_art'
-        ).attributes;
-        const cover = `https://mangadex.org/covers/${id}/${fileName}`;
-        manga = { ...manga, id, title, author, description, cover };
-
-        const selectedMangaEmbed = new EmbedBuilder()
-          .setTitle(`Did you mean to add \`${title}\`?`)
-          .setColor('Red')
-          .setDescription(description)
-          .setImage(cover);
-
-        await i.update({
-          embeds: [selectedMangaEmbed],
-          components: [],
+      const selectMenuMessage = await message
+        .awaitMessageComponent({
+          filter,
+          componentType: ComponentType.StringSelect,
+          time: 15000,
+        })
+        .catch((err) => {
+          throw Error(`You didn't respond in time! Please rerun the command.`);
         });
-      });
 
-      collector.on('end', async (collected) => {
-        console.log(collected.size);
-        if (collected.size === 0) {
-          const error = new EmbedBuilder()
-            .setTitle(`Error`)
-            .setColor('Red')
-            .setDescription(
-              `You didn't respond in time! Please rerun the command.`
-            );
-          await interaction.editReply({ embeds: [error], components: [] });
-        }
+      const id = selectMenuMessage.values[0];
+      const selectedManga = await getMangaDetails(id);
+      const title = selectedManga.attributes.title.en;
+      const author = selectedManga.relationships.find(
+        (relationship) => relationship.type === 'author'
+      ).attributes.name;
+      const description = selectedManga.attributes.description.en
+        ? selectedManga.attributes.description.en
+        : 'Description Unavailable';
+      const { fileName } = selectedManga.relationships.find(
+        (relationship) => relationship.type === 'cover_art'
+      ).attributes;
+      const cover = `https://mangadex.org/covers/${id}/${fileName}`;
+      manga = { ...manga, id, title, author, description, cover };
+
+      const selectedMangaEmbed = new EmbedBuilder()
+        .setTitle(`Did you mean to add \`${title}\`?`)
+        .setColor('White')
+        .setDescription(description)
+        .setImage(cover);
+
+      await interaction.editReply({
+        embeds: [selectedMangaEmbed],
+        components: [],
       });
     } catch (error) {
-      console.log(error);
-      await interaction.editReply(error.message);
+      const message = error.message;
+      errorEmbed(interaction, message);
     }
   },
 };
