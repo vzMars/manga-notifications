@@ -10,14 +10,6 @@ const MangaSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  author: {
-    type: String,
-    required: true,
-  },
-  description: {
-    type: String,
-    required: true,
-  },
   cover: {
     type: String,
     required: true,
