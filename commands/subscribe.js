@@ -12,7 +12,7 @@ const {
   searchManga,
   getMangaDetails,
 } = require('../controllers/mangaController');
-const { errorEmbed } = require('../components/embeds');
+const { errorEmbed, cancelEmbed } = require('../components/embeds');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -174,7 +174,10 @@ module.exports = {
           throw Error(`You didn't respond in time! Please rerun the command.`);
         });
 
-      console.log(buttonMessage);
+      if (buttonMessage.customId === 'confirm') {
+      } else if (buttonMessage.customId === 'cancel') {
+        cancelEmbed(interaction);
+      }
     } catch (error) {
       const message = error.message;
       errorEmbed(interaction, message);
