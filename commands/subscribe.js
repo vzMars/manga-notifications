@@ -5,6 +5,8 @@ const {
   ActionRowBuilder,
   StringSelectMenuBuilder,
   ComponentType,
+  ButtonBuilder,
+  ButtonStyle,
 } = require('discord.js');
 const {
   searchManga,
@@ -96,12 +98,23 @@ module.exports = {
           )
       );
 
+      const buttonRow = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setCustomId('confirm')
+          .setLabel('Confirm')
+          .setStyle(ButtonStyle.Success),
+        new ButtonBuilder()
+          .setCustomId('cancel')
+          .setLabel('Cancel')
+          .setStyle(ButtonStyle.Danger)
+      );
+
       await interaction.editReply({
         embeds: [resultsEmbed],
         components: [selectRow],
       });
 
-      const message = await interaction.fetchReply();
+      let message = await interaction.fetchReply();
 
       const filter = (i) => {
         i.deferUpdate();
@@ -141,7 +154,7 @@ module.exports = {
 
       await interaction.editReply({
         embeds: [selectedMangaEmbed],
-        components: [],
+        components: [buttonRow],
       });
     } catch (error) {
       const message = error.message;
