@@ -30,7 +30,7 @@ const MangaSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  textChannelID: {
+  textChannelId: {
     type: String,
     required: true,
   },
