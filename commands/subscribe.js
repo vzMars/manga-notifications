@@ -11,6 +11,7 @@ const {
 const {
   searchManga,
   getMangaDetails,
+  getLatestChapter,
 } = require('../controllers/mangaController');
 const { errorEmbed, cancelEmbed } = require('../components/embeds');
 
@@ -54,8 +55,8 @@ module.exports = {
     await interaction.deferReply();
     const mangaTitle = interaction.options.getString('manga-title');
     const source = interaction.options.getString('source');
-    const textChannelID = interaction.options.getChannel('text-channel').id;
-    let manga = { source, textChannelID };
+    const textChannelId = interaction.options.getChannel('text-channel').id;
+    let manga = { source, textChannelId };
 
     try {
       const results = await searchManga(mangaTitle);
@@ -175,6 +176,8 @@ module.exports = {
         });
 
       if (buttonMessage.customId === 'confirm') {
+        const { latestChapter } = await getLatestChapter(manga.id);
+        console.log('latest chapter', latestChapter);
       } else if (buttonMessage.customId === 'cancel') {
         cancelEmbed(interaction);
       }
