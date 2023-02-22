@@ -116,14 +116,14 @@ module.exports = {
 
       let message = await interaction.fetchReply();
 
-      const filter = (i) => {
+      const selectFilter = (i) => {
         i.deferUpdate();
         return i.customId === 'select-manga';
       };
 
       const selectMenuMessage = await message
         .awaitMessageComponent({
-          filter,
+          selectFilter,
           componentType: ComponentType.StringSelect,
           time: 15000,
         })
@@ -152,10 +152,29 @@ module.exports = {
         .setDescription(description)
         .setImage(cover);
 
-      await interaction.editReply({
+      await selectMenuMessage.update({
         embeds: [selectedMangaEmbed],
         components: [buttonRow],
       });
+
+      message = await interaction.fetchReply();
+
+      const buttonFilter = (i) => {
+        i.deferUpdate();
+        return i.customId === 'confirm' || i.customId === 'cancel';
+      };
+
+      const buttonMessage = await message
+        .awaitMessageComponent({
+          buttonFilter,
+          componentType: ComponentType.Button,
+          time: 15000,
+        })
+        .catch((err) => {
+          throw Error(`You didn't respond in time! Please rerun the command.`);
+        });
+
+      console.log(buttonMessage);
     } catch (error) {
       const message = error.message;
       errorEmbed(interaction, message);
