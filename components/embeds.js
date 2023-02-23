@@ -1,22 +1,37 @@
 const { EmbedBuilder } = require('discord.js');
 
-const errorEmbed = async (interaction, message) => {
-  const error = new EmbedBuilder()
+const searchResultsEmbed = (resultsDescription) => {
+  return new EmbedBuilder()
+    .setTitle('Search Results')
+    .setColor('Gold')
+    .setDescription(resultsDescription);
+};
+
+const mangaDetailsEmbed = (title, description, cover) => {
+  return new EmbedBuilder()
+    .setTitle(`Did you mean to add \`${title}\`?`)
+    .setColor('Gold')
+    .setDescription(description)
+    .setImage(cover);
+};
+
+const cancelEmbed = () => {
+  return new EmbedBuilder()
+    .setTitle('Canceled')
+    .setColor('Gold')
+    .setDescription('Successfully canceled.');
+};
+
+const errorEmbed = (message) => {
+  return new EmbedBuilder()
     .setTitle('Error')
     .setColor('Red')
     .setDescription(message);
-  await interaction.editReply({ embeds: [error], components: [] });
-};
-
-const cancelEmbed = async (interaction) => {
-  const cancel = new EmbedBuilder()
-    .setTitle('Canceled')
-    .setColor('White')
-    .setDescription('Successfully canceled.');
-  await interaction.editReply({ embeds: [cancel], components: [] });
 };
 
 module.exports = {
-  errorEmbed,
+  searchResultsEmbed,
+  mangaDetailsEmbed,
   cancelEmbed,
+  errorEmbed,
 };
