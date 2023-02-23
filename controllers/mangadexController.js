@@ -1,9 +1,8 @@
 const axios = require('axios');
-
 const baseUrl = 'https://api.mangadex.org';
 
 const searchManga = async (title) => {
-  const url = `${baseUrl}/manga/?title=${title}&order[relevance]=desc`;
+  const url = `${baseUrl}/manga/?title=${title}&order[relevance]=desc&includes[]=author`;
   try {
     const response = await axios.get(url);
     return response.data.data;
@@ -13,10 +12,19 @@ const searchManga = async (title) => {
 };
 
 const getMangaDetails = async (id) => {
-  const url = `${baseUrl}/manga/${id}?includes[]=author&includes[]=cover_art`;
+  const url = `${baseUrl}/manga/${id}?includes[]=cover_art`;
   try {
     const response = await axios.get(url);
-    return response.data.data;
+    const data = response.data.data;
+    const title = data.attributes.title.en;
+    const description = data.attributes.description.en
+      ? data.attributes.description.en
+      : 'Description Unavailable';
+    const { fileName } = data.relationships.find(
+      (relationship) => relationship.type === 'cover_art'
+    ).attributes;
+
+    return { title, description, fileName };
   } catch (error) {
     console.log(error);
   }
