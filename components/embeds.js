@@ -7,6 +7,15 @@ const defaultEmbed = (title, description) => {
     .setDescription(description);
 };
 
+const mangaListEmbed = (title, description, icon, bot) => {
+  return new EmbedBuilder()
+    .setTitle(title)
+    .setAuthor({ name: bot.username, iconURL: bot.avatar })
+    .setColor('Gold')
+    .setDescription(description)
+    .setThumbnail(icon);
+};
+
 const mangaDetailsEmbed = (title, description, cover) => {
   return description
     ? new EmbedBuilder()
@@ -25,7 +34,8 @@ const errorEmbed = (message) => {
 };
 
 module.exports = {
-  mangaDetailsEmbed,
   defaultEmbed,
+  mangaListEmbed,
+  mangaDetailsEmbed,
   errorEmbed,
 };
