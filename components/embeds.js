@@ -1,10 +1,10 @@
 const { EmbedBuilder } = require('discord.js');
 
-const listEmbed = (title, resultsDescription) => {
+const defaultEmbed = (title, description) => {
   return new EmbedBuilder()
     .setTitle(title)
     .setColor('Gold')
-    .setDescription(resultsDescription);
+    .setDescription(description);
 };
 
 const mangaDetailsEmbed = (title, description, cover) => {
@@ -17,20 +17,6 @@ const mangaDetailsEmbed = (title, description, cover) => {
     : new EmbedBuilder().setTitle(title).setColor('Gold').setImage(cover);
 };
 
-const successEmbed = (description) => {
-  return new EmbedBuilder()
-    .setTitle('Success!')
-    .setColor('Gold')
-    .setDescription(description);
-};
-
-const cancelEmbed = () => {
-  return new EmbedBuilder()
-    .setTitle('Canceled!')
-    .setColor('Gold')
-    .setDescription('Successfully canceled.');
-};
-
 const errorEmbed = (message) => {
   return new EmbedBuilder()
     .setTitle('Error!')
@@ -39,9 +25,7 @@ const errorEmbed = (message) => {
 };
 
 module.exports = {
-  listEmbed,
   mangaDetailsEmbed,
-  successEmbed,
-  cancelEmbed,
+  defaultEmbed,
   errorEmbed,
 };
