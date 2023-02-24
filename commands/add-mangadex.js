@@ -11,7 +11,7 @@ const {
 const { searchResultsSelectMenu } = require('../components/selectMenus');
 const { confirmCancelBtns } = require('../components/buttons');
 const {
-  searchResultsEmbed,
+  listEmbed,
   mangaDetailsEmbed,
   successEmbed,
   cancelEmbed,
@@ -60,15 +60,15 @@ module.exports = {
           ? results[i].attributes.year
           : 'Year Unknown';
 
-        resultsDescription += `${i + 1}: ${title} (${year})\n`;
+        resultsDescription += `${i + 1}. ${title} (${year})\n`;
       }
 
-      const resultsEmbed = searchResultsEmbed(resultsDescription);
+      const resultsList = listEmbed('Search Results', resultsDescription);
       const selectRow = searchResultsSelectMenu(results);
       const buttonRow = confirmCancelBtns();
 
       await interaction.editReply({
-        embeds: [resultsEmbed],
+        embeds: [resultsList],
         components: [selectRow],
       });
 
@@ -93,7 +93,12 @@ module.exports = {
       const { title, description, fileName } = await getMangaDetails(source_id);
       const cover = `https://mangadex.org/covers/${source_id}/${fileName}`;
 
-      const selectedMangaEmbed = mangaDetailsEmbed(title, description, cover);
+      const mangaDetailsTitle = `Did you mean to add \`${title}\`?`;
+      const selectedMangaEmbed = mangaDetailsEmbed(
+        mangaDetailsTitle,
+        description,
+        cover
+      );
 
       await selectMenuMessage.update({
         embeds: [selectedMangaEmbed],
@@ -137,7 +142,8 @@ module.exports = {
           textChannelId,
         });
 
-        const success = successEmbed(title);
+        const successDescription = `Successfully added ${title}.`;
+        const success = successEmbed(successDescription);
         await interaction.editReply({ embeds: [success], components: [] });
       } else if (buttonMessage.customId === 'cancel') {
         const cancel = cancelEmbed();

@@ -22,4 +22,20 @@ const searchResultsSelectMenu = (results) => {
   );
 };
 
-module.exports = { searchResultsSelectMenu };
+const mangaListSelectMenu = (mangas) => {
+  return new ActionRowBuilder().addComponents(
+    new StringSelectMenuBuilder()
+      .setCustomId('remove-manga')
+      .setPlaceholder('Remove a manga.')
+      .addOptions(
+        mangas.map((manga, i) => {
+          return {
+            label: `${i + 1}. ${manga.title} (${manga.source})`,
+            value: manga.source_id,
+          };
+        })
+      )
+  );
+};
+
+module.exports = { searchResultsSelectMenu, mangaListSelectMenu };
