@@ -33,7 +33,7 @@ const getMangaDetails = async (id) => {
 const getLatestChapter = async (id) => {
   const url = `${baseUrl}/manga/${id}/feed?translatedLanguage[]=en&order[chapter]=desc&limit=1`;
   let latestChapterId = '';
-  let latestChapter = '0';
+  let latestChapter = 0;
   try {
     const response = await axios.get(url);
 

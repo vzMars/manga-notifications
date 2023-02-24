@@ -13,9 +13,11 @@ const { confirmCancelBtns } = require('../components/buttons');
 const {
   searchResultsEmbed,
   mangaDetailsEmbed,
+  successEmbed,
   cancelEmbed,
   errorEmbed,
 } = require('../components/embeds');
+const Manga = require('../models/Manga');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -42,7 +44,6 @@ module.exports = {
     await interaction.deferReply();
     const mangaTitle = interaction.options.getString('manga-title');
     const textChannelId = interaction.options.getChannel('text-channel').id;
-    let manga = { textChannelId };
 
     try {
       const results = await searchManga(mangaTitle);
@@ -73,8 +74,8 @@ module.exports = {
 
       let message = await interaction.fetchReply();
 
-      const selectFilter = (i) => {
-        i.deferUpdate();
+      const selectFilter = async (i) => {
+        await i.deferUpdate();
         return i.customId === 'select-manga';
       };
 
@@ -88,11 +89,9 @@ module.exports = {
           throw Error(`You didn't respond in time! Please rerun the command.`);
         });
 
-      const id = selectMenuMessage.values[0];
-      const { title, description, fileName } = await getMangaDetails(id);
-      const cover = `https://mangadex.org/covers/${id}/${fileName}`;
-
-      manga = { ...manga, id, title, cover };
+      const source_id = selectMenuMessage.values[0];
+      const { title, description, fileName } = await getMangaDetails(source_id);
+      const cover = `https://mangadex.org/covers/${source_id}/${fileName}`;
 
       const selectedMangaEmbed = mangaDetailsEmbed(title, description, cover);
 
@@ -103,8 +102,8 @@ module.exports = {
 
       message = await interaction.fetchReply();
 
-      const buttonFilter = (i) => {
-        i.deferUpdate();
+      const buttonFilter = async (i) => {
+        await i.deferUpdate();
         return i.customId === 'confirm' || i.customId === 'cancel';
       };
 
@@ -119,9 +118,27 @@ module.exports = {
         });
 
       if (buttonMessage.customId === 'confirm') {
-        const { latestChapter } = await getLatestChapter(manga.id);
-        console.log('latest chapter', latestChapter);
-        console.log(manga);
+        const existingManga = await Manga.findOne({ source_id });
+
+        if (existingManga) {
+          throw Error(
+            `Already receiving ${title} chapter notifications from mangadex.org`
+          );
+        }
+
+        const { latestChapter } = await getLatestChapter(source_id);
+        const source = 'mangadex';
+        await Manga.create({
+          title,
+          cover,
+          latestChapter,
+          source,
+          source_id,
+          textChannelId,
+        });
+
+        const success = successEmbed(title);
+        await interaction.editReply({ embeds: [success], components: [] });
       } else if (buttonMessage.customId === 'cancel') {
         const cancel = cancelEmbed();
         await interaction.editReply({ embeds: [cancel], components: [] });
