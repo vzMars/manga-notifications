@@ -2,10 +2,8 @@ const { SlashCommandBuilder, ComponentType } = require('discord.js');
 const { mangaListSelectMenu } = require('../components/selectMenus');
 const { confirmCancelBtns } = require('../components/buttons');
 const {
-  listEmbed,
   mangaDetailsEmbed,
-  successEmbed,
-  cancelEmbed,
+  defaultEmbed,
   errorEmbed,
 } = require('../components/embeds');
 const Manga = require('../models/Manga');
@@ -19,6 +17,11 @@ module.exports = {
 
     try {
       const mangas = await Manga.find();
+
+      if (!mangas?.length) {
+        throw Error(`The subscription list is empty, nothing to remove.`);
+      }
+
       let mangasDescription =
         'Select the manga that will be removed from the subscription list.\n';
       for (let i = 0; i < mangas.length; i++) {
@@ -27,7 +30,7 @@ module.exports = {
         mangasDescription += `${i + 1}. ${title} (${source})\n`;
       }
 
-      const mangaList = listEmbed('Remove Manga', mangasDescription);
+      const mangaList = defaultEmbed('Remove Manga', mangasDescription);
       const selectRow = mangaListSelectMenu(mangas);
       const buttonRow = confirmCancelBtns();
 
@@ -89,11 +92,11 @@ module.exports = {
         await manga.remove();
 
         const successDescription = `Successfully removed ${title}.`;
-        const success = successEmbed(successDescription);
+        const success = defaultEmbed('Success!', successDescription);
 
         await interaction.editReply({ embeds: [success], components: [] });
       } else if (buttonMessage.customId === 'cancel') {
-        const cancel = cancelEmbed();
+        const cancel = defaultEmbed('Canceled!', 'Successfully canceled.');
         await interaction.editReply({ embeds: [cancel], components: [] });
       }
     } catch (err) {

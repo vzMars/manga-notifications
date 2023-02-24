@@ -11,10 +11,8 @@ const {
 const { searchResultsSelectMenu } = require('../components/selectMenus');
 const { confirmCancelBtns } = require('../components/buttons');
 const {
-  listEmbed,
   mangaDetailsEmbed,
-  successEmbed,
-  cancelEmbed,
+  defaultEmbed,
   errorEmbed,
 } = require('../components/embeds');
 const Manga = require('../models/Manga');
@@ -63,7 +61,7 @@ module.exports = {
         resultsDescription += `${i + 1}. ${title} (${year})\n`;
       }
 
-      const resultsList = listEmbed('Search Results', resultsDescription);
+      const resultsList = defaultEmbed('Search Results', resultsDescription);
       const selectRow = searchResultsSelectMenu(results);
       const buttonRow = confirmCancelBtns();
 
@@ -143,10 +141,10 @@ module.exports = {
         });
 
         const successDescription = `Successfully added ${title}.`;
-        const success = successEmbed(successDescription);
+        const success = defaultEmbed('Success!', successDescription);
         await interaction.editReply({ embeds: [success], components: [] });
       } else if (buttonMessage.customId === 'cancel') {
-        const cancel = cancelEmbed();
+        const cancel = defaultEmbed('Canceled!', 'Successfully canceled.');
         await interaction.editReply({ embeds: [cancel], components: [] });
       }
     } catch (err) {
