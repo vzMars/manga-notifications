@@ -15,16 +15,23 @@ const mangaDetailsEmbed = (title, description, cover) => {
     .setImage(cover);
 };
 
+const successEmbed = (title) => {
+  return new EmbedBuilder()
+    .setTitle('Success!')
+    .setColor('Gold')
+    .setDescription(`Successfully added ${title}.`);
+};
+
 const cancelEmbed = () => {
   return new EmbedBuilder()
-    .setTitle('Canceled')
+    .setTitle('Canceled!')
     .setColor('Gold')
     .setDescription('Successfully canceled.');
 };
 
 const errorEmbed = (message) => {
   return new EmbedBuilder()
-    .setTitle('Error')
+    .setTitle('Error!')
     .setColor('Red')
     .setDescription(message);
 };
@@ -32,6 +39,7 @@ const errorEmbed = (message) => {
 module.exports = {
   searchResultsEmbed,
   mangaDetailsEmbed,
+  successEmbed,
   cancelEmbed,
   errorEmbed,
 };
