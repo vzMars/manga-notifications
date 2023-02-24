@@ -1,11 +1,6 @@
 const mongoose = require('mongoose');
 
 const MangaSchema = new mongoose.Schema({
-  id: {
-    type: String,
-    required: true,
-    unique: true,
-  },
   title: {
     type: String,
     required: true,
@@ -21,6 +16,11 @@ const MangaSchema = new mongoose.Schema({
   source: {
     type: String,
     required: true,
+  },
+  source_id: {
+    type: String,
+    required: true,
+    unique: true,
   },
   textChannelId: {
     type: String,
