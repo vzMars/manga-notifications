@@ -1,11 +1,6 @@
 const { SlashCommandBuilder, ComponentType } = require('discord.js');
-const { mangaListSelectMenu } = require('../components/selectMenus');
 const { confirmCancelBtns } = require('../components/buttons');
-const {
-  mangaDetailsEmbed,
-  defaultEmbed,
-  errorEmbed,
-} = require('../components/embeds');
+const { defaultEmbed, errorEmbed } = require('../components/embeds');
 const Manga = require('../models/Manga');
 
 module.exports = {
