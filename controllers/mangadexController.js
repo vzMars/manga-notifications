@@ -39,7 +39,7 @@ const getLatestChapter = async (id) => {
 
     if (response.data.data?.length) {
       latestChapterId = response.data.data[0].id;
-      latestChapter = response.data.data[0].attributes.chapter;
+      latestChapter = +response.data.data[0].attributes.chapter;
     }
 
     return { latestChapterId, latestChapter };
