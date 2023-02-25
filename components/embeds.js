@@ -7,6 +7,16 @@ const defaultEmbed = (title, description) => {
     .setDescription(description);
 };
 
+const newChapterEmbed = (chapter) => {
+  return new EmbedBuilder()
+    .setTitle(`Chapter ${chapter.chapterNumber}`)
+    .setURL(chapter.chapterLink)
+    .setAuthor({ name: chapter.title, url: chapter.seriesLink })
+    .setColor('Gold')
+    .setImage(chapter.cover)
+    .setTimestamp();
+};
+
 const mangaListEmbed = (title, description, icon, bot) => {
   return new EmbedBuilder()
     .setTitle(title)
@@ -35,6 +45,7 @@ const errorEmbed = (message) => {
 
 module.exports = {
   defaultEmbed,
+  newChapterEmbed,
   mangaListEmbed,
   mangaDetailsEmbed,
   errorEmbed,
