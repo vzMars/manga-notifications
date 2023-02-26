@@ -39,6 +39,37 @@ const searchManga = async (title) => {
   }
 };
 
+const getMangaDetails = async (url) => {
+  try {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+
+    await page.goto(url);
+
+    const title = await page.evaluate(
+      () => document.querySelector('h1').textContent
+    );
+
+    const description = await page.evaluate(
+      () => document.querySelector('.top-5.Content').textContent
+    );
+
+    const cover = await page.evaluate(
+      () => document.querySelector('.img-fluid.bottom-5').src
+    );
+
+    const source_id = await page.evaluate(
+      () => document.querySelector('a[href$=".xml"]').href
+    );
+
+    await browser.close();
+
+    return { title, description, cover, source_id };
+  } catch (error) {
+    console.log(error);
+  }
+};
 module.exports = {
   searchManga,
+  getMangaDetails,
 };

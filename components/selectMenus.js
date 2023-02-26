@@ -26,7 +26,7 @@ const searchResultsMangaDex = (results) => {
 const searchResultsMangaSee = (results) => {
   return new ActionRowBuilder().addComponents(
     new StringSelectMenuBuilder()
-      .setCustomId('select-menu')
+      .setCustomId('select-manga')
       .setPlaceholder('Select a manga.')
       .addOptions(
         results.map((result, i) => {

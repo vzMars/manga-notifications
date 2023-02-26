@@ -1,5 +1,12 @@
-const { SlashCommandBuilder, ChannelType } = require('discord.js');
-const { searchManga } = require('../controllers/mangaseeController');
+const {
+  SlashCommandBuilder,
+  ChannelType,
+  ComponentType,
+} = require('discord.js');
+const {
+  searchManga,
+  getMangaDetails,
+} = require('../controllers/mangaseeController');
 const { searchResultsMangaSee } = require('../components/selectMenus');
 const { confirmCancelBtns } = require('../components/buttons');
 const { defaultEmbed, errorEmbed } = require('../components/embeds');
@@ -55,6 +62,28 @@ module.exports = {
         embeds: [resultsList],
         components: [selectRow],
       });
+
+      let message = await interaction.fetchReply();
+
+      const selectFilter = async (i) => {
+        await i.deferUpdate();
+        return i.customId === 'select-manga';
+      };
+
+      const selectMenuMessage = await message
+        .awaitMessageComponent({
+          selectFilter,
+          componentType: ComponentType.StringSelect,
+          time: 20000,
+        })
+        .catch((err) => {
+          throw Error(`You didn't respond in time! Please rerun the command.`);
+        });
+
+      const url = selectMenuMessage.values[0];
+      const { title, description, cover, source_id } = await getMangaDetails(
+        url
+      );
     } catch (err) {
       const error = errorEmbed(err.message);
       await interaction.editReply({ embeds: [error], components: [] });
