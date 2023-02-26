@@ -1,21 +1,40 @@
 const { ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
 
-const searchResultsSelectMenu = (results) => {
+const searchResultsMangaDex = (results) => {
   return new ActionRowBuilder().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId('select-manga')
       .setPlaceholder('Select a manga.')
       .addOptions(
         results.map((result, i) => {
-          const author = result.relationships.find(
-            (relationship) => relationship.type === 'author'
-          );
+          const authors = result.relationships
+            .filter((relationship) => relationship.type === 'author')
+            .map((author) =>
+              author.attributes ? author.attributes.name : 'Author Unknown'
+            )
+            .join(', ');
           return {
             label: `${i + 1}. ${result.attributes.title.en}`,
-            description: `${
-              author.attributes ? author.attributes.name : 'Author Unknown'
-            }`,
+            description: authors,
             value: result.id,
+          };
+        })
+      )
+  );
+};
+
+const searchResultsMangaSee = (results) => {
+  return new ActionRowBuilder().addComponents(
+    new StringSelectMenuBuilder()
+      .setCustomId('select-menu')
+      .setPlaceholder('Select a manga.')
+      .addOptions(
+        results.map((result, i) => {
+          const authors = result.author.join(', ');
+          return {
+            label: `${i + 1}. ${result.title}`,
+            description: authors,
+            value: result.link,
           };
         })
       )
@@ -38,4 +57,8 @@ const mangaListSelectMenu = (mangas) => {
   );
 };
 
-module.exports = { searchResultsSelectMenu, mangaListSelectMenu };
+module.exports = {
+  searchResultsMangaDex,
+  searchResultsMangaSee,
+  mangaListSelectMenu,
+};
