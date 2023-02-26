@@ -8,7 +8,7 @@ const {
   getMangaDetails,
   getLatestChapter,
 } = require('../controllers/mangadexController');
-const { searchResultsSelectMenu } = require('../components/selectMenus');
+const { searchResultsMangaDex } = require('../components/selectMenus');
 const { confirmCancelBtns } = require('../components/buttons');
 const {
   mangaDetailsEmbed,
@@ -62,7 +62,7 @@ module.exports = {
       }
 
       const resultsList = defaultEmbed('Search Results', resultsDescription);
-      const selectRow = searchResultsSelectMenu(results);
+      const selectRow = searchResultsMangaDex(results);
       const buttonRow = confirmCancelBtns();
 
       await interaction.editReply({
