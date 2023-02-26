@@ -1,6 +1,8 @@
 const { SlashCommandBuilder, ChannelType } = require('discord.js');
 const { searchManga } = require('../controllers/mangaseeController');
-const { errorEmbed } = require('../components/embeds');
+const { searchResultsMangaSee } = require('../components/selectMenus');
+const { confirmCancelBtns } = require('../components/buttons');
+const { defaultEmbed, errorEmbed } = require('../components/embeds');
 const Manga = require('../models/Manga');
 
 module.exports = {
@@ -32,7 +34,27 @@ module.exports = {
     try {
       const results = await searchManga(mangaTitle);
 
-      console.log(results);
+      if (!results?.length) {
+        throw Error('No results found.');
+      }
+
+      let resultsDescription =
+        'Select the manga that will be added to the subscription list.\n';
+      for (let i = 0; i < results.length; i++) {
+        const title = results[i].title;
+        const year = results[i].year;
+
+        resultsDescription += `${i + 1}. ${title} (${year})\n`;
+      }
+
+      const resultsList = defaultEmbed('Search Results', resultsDescription);
+      const selectRow = searchResultsMangaSee(results);
+      const buttonRow = confirmCancelBtns();
+
+      await interaction.editReply({
+        embeds: [resultsList],
+        components: [selectRow],
+      });
     } catch (err) {
       const error = errorEmbed(err.message);
       await interaction.editReply({ embeds: [error], components: [] });
