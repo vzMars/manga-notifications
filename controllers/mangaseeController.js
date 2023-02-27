@@ -79,6 +79,7 @@ const getLatestChapter = async (url) => {
   let latestChapter = 0;
   try {
     const feed = await parser.parseURL(url);
+    const link = feed.link;
 
     if (feed.items?.length) {
       const latestChapterArr = feed.items[0].guid.split('-');
@@ -86,7 +87,7 @@ const getLatestChapter = async (url) => {
       latestChapter = +latestChapterArr[latestChapterArr.length - 1];
     }
 
-    return { latestChapterUrl, latestChapter };
+    return { latestChapterUrl, latestChapter, link };
   } catch (error) {
     console.log(error);
   }
