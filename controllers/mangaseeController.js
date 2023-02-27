@@ -1,4 +1,6 @@
 const puppeteer = require('puppeteer');
+const Parser = require('rss-parser');
+const parser = new Parser();
 const baseUrl = 'https://mangasee123.com';
 
 const searchManga = async (title) => {
@@ -14,20 +16,22 @@ const searchManga = async (title) => {
       Array.from(document.querySelectorAll('.top-15.ng-scope > .row'), (e) => ({
         title: e.querySelector('.SeriesName.ng-binding').textContent,
         link: e.querySelector('.SeriesName.ng-binding').href,
-        author: e.querySelector('i')
-          ? [
-              ...e.children[1].children[2].querySelectorAll(
-                'span.ng-binding.ng-scope'
-              ),
-            ].map((author) => author.children[0].textContent)
-          : [
-              ...e.children[1].children[1].querySelectorAll(
-                'span.ng-binding.ng-scope'
-              ),
-            ].map((author) => author.children[0].textContent),
-        year: e.querySelector('i')
-          ? e.children[1].children[2].lastElementChild.textContent
-          : e.children[1].children[1].lastElementChild.textContent,
+        author:
+          e.children[1].children[1].tagName === 'I'
+            ? [
+                ...e.children[1].children[2].querySelectorAll(
+                  'span.ng-binding.ng-scope'
+                ),
+              ].map((author) => author.children[0].textContent)
+            : [
+                ...e.children[1].children[1].querySelectorAll(
+                  'span.ng-binding.ng-scope'
+                ),
+              ].map((author) => author.children[0].textContent),
+        year:
+          e.children[1].children[1].tagName === 'I'
+            ? e.children[1].children[2].lastElementChild.textContent
+            : e.children[1].children[1].lastElementChild.textContent,
       }))
     );
 
@@ -69,7 +73,27 @@ const getMangaDetails = async (url) => {
     console.log(error);
   }
 };
+
+const getLatestChapter = async (url) => {
+  let latestChapterUrl = '';
+  let latestChapter = 0;
+  try {
+    const feed = await parser.parseURL(url);
+
+    if (feed.items?.length) {
+      const latestChapterArr = feed.items[0].guid.split('-');
+      latestChapterUrl = feed.items[0].link;
+      latestChapter = +latestChapterArr[latestChapterArr.length - 1];
+    }
+
+    return { latestChapterUrl, latestChapter };
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports = {
   searchManga,
   getMangaDetails,
+  getLatestChapter,
 };

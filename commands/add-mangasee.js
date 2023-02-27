@@ -6,6 +6,7 @@ const {
 const {
   searchManga,
   getMangaDetails,
+  getLatestChapter,
 } = require('../controllers/mangaseeController');
 const { searchResultsMangaSee } = require('../components/selectMenus');
 const { confirmCancelBtns } = require('../components/buttons');
@@ -117,6 +118,35 @@ module.exports = {
         .catch((err) => {
           throw Error(`You didn't respond in time! Please rerun the command.`);
         });
+
+      if (buttonMessage.customId === 'confirm') {
+        const existingManga = await Manga.findOne({ source_id });
+
+        if (existingManga) {
+          throw Error(
+            `Already receiving ${title} chapter notifications from mangasee123.com`
+          );
+        }
+
+        const { latestChapter } = await getLatestChapter(source_id);
+
+        // const source = 'mangasee';
+        // await Manga.create({
+        //   title,
+        //   cover,
+        //   latestChapter,
+        //   source,
+        //   source_id,
+        //   textChannelId,
+        // });
+
+        // const successDescription = `Successfully added ${title}.`;
+        // const success = defaultEmbed('Success!', successDescription);
+        // await interaction.editReply({ embeds: [success], components: [] });
+      } else if (buttonMessage.customId === 'cancel') {
+        const cancel = defaultEmbed('Canceled!', 'Successfully canceled.');
+        await interaction.editReply({ embeds: [cancel], components: [] });
+      }
     } catch (err) {
       const error = errorEmbed(err.message);
       await interaction.editReply({ embeds: [error], components: [] });
