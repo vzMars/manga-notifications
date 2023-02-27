@@ -9,7 +9,11 @@ const {
 } = require('../controllers/mangaseeController');
 const { searchResultsMangaSee } = require('../components/selectMenus');
 const { confirmCancelBtns } = require('../components/buttons');
-const { defaultEmbed, errorEmbed } = require('../components/embeds');
+const {
+  defaultEmbed,
+  mangaDetailsEmbed,
+  errorEmbed,
+} = require('../components/embeds');
 const Manga = require('../models/Manga');
 
 module.exports = {
@@ -84,6 +88,35 @@ module.exports = {
       const { title, description, cover, source_id } = await getMangaDetails(
         url
       );
+
+      const mangaDetailsTitle = `Did you mean to add \`${title}\`?`;
+      const selectedMangaEmbed = mangaDetailsEmbed(
+        mangaDetailsTitle,
+        description,
+        cover
+      );
+
+      await selectMenuMessage.update({
+        embeds: [selectedMangaEmbed],
+        components: [buttonRow],
+      });
+
+      message = await interaction.fetchReply();
+
+      const buttonFilter = async (i) => {
+        await i.deferUpdate();
+        return i.customId === 'confirm' || i.customId === 'cancel';
+      };
+
+      const buttonMessage = await message
+        .awaitMessageComponent({
+          buttonFilter,
+          componentType: ComponentType.Button,
+          time: 20000,
+        })
+        .catch((err) => {
+          throw Error(`You didn't respond in time! Please rerun the command.`);
+        });
     } catch (err) {
       const error = errorEmbed(err.message);
       await interaction.editReply({ embeds: [error], components: [] });
