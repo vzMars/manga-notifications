@@ -130,19 +130,19 @@ module.exports = {
 
         const { latestChapter } = await getLatestChapter(source_id);
 
-        // const source = 'mangasee';
-        // await Manga.create({
-        //   title,
-        //   cover,
-        //   latestChapter,
-        //   source,
-        //   source_id,
-        //   textChannelId,
-        // });
+        const source = 'mangasee';
+        await Manga.create({
+          title,
+          cover,
+          latestChapter,
+          source,
+          source_id,
+          textChannelId,
+        });
 
-        // const successDescription = `Successfully added ${title}.`;
-        // const success = defaultEmbed('Success!', successDescription);
-        // await interaction.editReply({ embeds: [success], components: [] });
+        const successDescription = `Successfully added ${title}.`;
+        const success = defaultEmbed('Success!', successDescription);
+        await interaction.editReply({ embeds: [success], components: [] });
       } else if (buttonMessage.customId === 'cancel') {
         const cancel = defaultEmbed('Canceled!', 'Successfully canceled.');
         await interaction.editReply({ embeds: [cancel], components: [] });
