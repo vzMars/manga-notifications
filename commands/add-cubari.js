@@ -1,19 +1,9 @@
-const {
-  SlashCommandBuilder,
-  ChannelType,
-  ComponentType,
-} = require('discord.js');
+const { SlashCommandBuilder, ChannelType } = require('discord.js');
 const {
   getMangaDetails,
   getLatestChapter,
 } = require('../controllers/cubariController');
-const { searchResultsMangaSee } = require('../components/selectMenus');
-const { confirmCancelBtns } = require('../components/buttons');
-const {
-  defaultEmbed,
-  mangaDetailsEmbed,
-  errorEmbed,
-} = require('../components/embeds');
+const { defaultEmbed, errorEmbed } = require('../components/embeds');
 const Manga = require('../models/Manga');
 
 module.exports = {
