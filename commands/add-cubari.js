@@ -51,6 +51,14 @@ module.exports = {
         throw Error('Provide a link to the series, not an actual chapter.');
       }
 
+      const existingManga = await Manga.findOne({ source_id: mangaLink });
+
+      if (existingManga) {
+        throw Error(
+          `Already receiving ${manga.title} chapter notifications from ${mangaLink}`
+        );
+      }
+
       const { latestChapter } = await getLatestChapter(mangaLink);
 
       const source = 'cubari';
