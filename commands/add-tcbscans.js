@@ -1,4 +1,8 @@
-const { SlashCommandBuilder, ChannelType } = require('discord.js');
+const {
+  SlashCommandBuilder,
+  ChannelType,
+  ComponentType,
+} = require('discord.js');
 const {
   searchManga,
   getMangaDetails,
@@ -6,7 +10,11 @@ const {
 } = require('../controllers/tcbscansController');
 const { searchResultsTcbScans } = require('../components/selectMenus');
 const { confirmCancelBtns } = require('../components/buttons');
-const { defaultEmbed, errorEmbed } = require('../components/embeds');
+const {
+  defaultEmbed,
+  mangaDetailsEmbed,
+  errorEmbed,
+} = require('../components/embeds');
 const Manga = require('../models/Manga');
 
 module.exports = {
@@ -53,6 +61,82 @@ module.exports = {
       });
 
       let message = await interaction.fetchReply();
+
+      const selectFilter = async (i) => {
+        await i.deferUpdate();
+        return i.customId === 'select-manga';
+      };
+
+      const selectMenuMessage = await message
+        .awaitMessageComponent({
+          selectFilter,
+          componentType: ComponentType.StringSelect,
+          time: 20000,
+        })
+        .catch((err) => {
+          throw Error(`You didn't respond in time! Please rerun the command.`);
+        });
+
+      const source_id = selectMenuMessage.values[0];
+      const { title, description, cover } = await getMangaDetails(source_id);
+
+      const mangaDetailsTitle = `Did you mean to add \`${title}\`?`;
+      const selectedMangaEmbed = mangaDetailsEmbed(
+        mangaDetailsTitle,
+        description,
+        cover
+      );
+
+      await selectMenuMessage.update({
+        embeds: [selectedMangaEmbed],
+        components: [buttonRow],
+      });
+
+      message = await interaction.fetchReply();
+
+      const buttonFilter = async (i) => {
+        await i.deferUpdate();
+        return i.customId === 'confirm' || i.customId === 'cancel';
+      };
+
+      const buttonMessage = await message
+        .awaitMessageComponent({
+          buttonFilter,
+          componentType: ComponentType.Button,
+          time: 20000,
+        })
+        .catch((err) => {
+          throw Error(`You didn't respond in time! Please rerun the command.`);
+        });
+
+      if (buttonMessage.customId === 'confirm') {
+        const existingManga = await Manga.findOne({ source_id });
+
+        if (existingManga) {
+          throw Error(
+            `Already receiving ${title} chapter notifications from TCB Scans.`
+          );
+        }
+
+        const { latestChapter } = await getLatestChapter(source_id);
+
+        const source = 'tcbscans';
+        await Manga.create({
+          title,
+          cover,
+          latestChapter,
+          source,
+          source_id,
+          textChannelId,
+        });
+
+        const successDescription = `Successfully added ${title}.`;
+        const success = defaultEmbed('Success!', successDescription);
+        await interaction.editReply({ embeds: [success], components: [] });
+      } else if (buttonMessage.customId === 'cancel') {
+        const cancel = defaultEmbed('Canceled!', 'Successfully canceled.');
+        await interaction.editReply({ embeds: [cancel], components: [] });
+      }
     } catch (err) {
       const error = errorEmbed(err.message);
       await interaction.editReply({ embeds: [error], components: [] });
