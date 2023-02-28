@@ -61,7 +61,7 @@ module.exports = {
         throw Error('Provide a link to the series, not an actual chapter.');
       }
 
-      const { latestChapter } = getLatestChapter(mangaLink);
+      const { latestChapter } = await getLatestChapter(mangaLink);
     } catch (err) {
       const error = errorEmbed(err.message);
       await interaction.editReply({ embeds: [error], components: [] });
