@@ -47,7 +47,7 @@ module.exports = {
     try {
       if (!mangaLink.includes('cubari.moe/read/gist/')) {
         throw Error(
-          'Please provide a link that looks like https://cubari.moe/read/gist/JYHJU/'
+          'Provide a link to the series that looks like https://cubari.moe/read/gist/JYHJU/'
         );
       }
 
@@ -57,7 +57,11 @@ module.exports = {
         throw Error(`Could not find series at ${mangaLink}`);
       }
 
-      console.log(manga);
+      if (manga === 'reader') {
+        throw Error('Provide a link to the series, not an actual chapter.');
+      }
+
+      const { latestChapter } = getLatestChapter(mangaLink);
     } catch (err) {
       const error = errorEmbed(err.message);
       await interaction.editReply({ embeds: [error], components: [] });
