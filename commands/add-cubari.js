@@ -62,6 +62,20 @@ module.exports = {
       }
 
       const { latestChapter } = await getLatestChapter(mangaLink);
+
+      const source = 'cubari';
+      await Manga.create({
+        title: manga.title,
+        cover: manga.cover,
+        latestChapter,
+        source,
+        source_id: mangaLink,
+        textChannelId,
+      });
+
+      const successDescription = `Successfully added ${manga.title}.`;
+      const success = defaultEmbed('Success!', successDescription);
+      await interaction.editReply({ embeds: [success], components: [] });
     } catch (err) {
       const error = errorEmbed(err.message);
       await interaction.editReply({ embeds: [error], components: [] });
