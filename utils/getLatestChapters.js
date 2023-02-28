@@ -6,6 +6,26 @@ const cubariController = require('../controllers/cubariController');
 const tcbscansController = require('../controllers/tcbscansController');
 const { newChapterEmbed } = require('../components/embeds');
 
+const checkChapter = async (client, manga, latestChapter, links) => {
+  if (manga.latestChapter < latestChapter) {
+    const chapter = {
+      title: manga.title,
+      cover: manga.cover,
+      chapterNumber: latestChapter,
+      chapterLink: links.chapterLink,
+      seriesLink: links.seriesLink,
+    };
+
+    const newChapter = newChapterEmbed(chapter);
+    const channel = client.channels.cache.get(manga.textChannelId);
+
+    manga.latestChapter = latestChapter;
+    await manga.save();
+
+    channel.send({ embeds: [newChapter] });
+  }
+};
+
 const getLatestChapters = async (client) => {
   schedule.scheduleJob('*/5 * * * *', async () => {
     try {
@@ -16,23 +36,12 @@ const getLatestChapters = async (client) => {
             const { latestChapterId, latestChapter: latestMangadex } =
               await mangadexController.getLatestChapter(manga.source_id);
 
-            if (manga.latestChapter < latestMangadex) {
-              const chapter = {
-                title: manga.title,
-                cover: manga.cover,
-                chapterNumber: latestMangadex,
-                chapterLink: `https://mangadex.org/chapter/${latestChapterId}`,
-                seriesLink: `https://mangadex.org/title/${manga.source_id}`,
-              };
+            const mangadexLinks = {
+              chapterLink: `https://mangadex.org/chapter/${latestChapterId}`,
+              seriesLink: `https://mangadex.org/title/${manga.source_id}`,
+            };
 
-              const newChapter = newChapterEmbed(chapter);
-              const channel = client.channels.cache.get(manga.textChannelId);
-
-              manga.latestChapter = latestMangadex;
-              await manga.save();
-
-              channel.send({ embeds: [newChapter] });
-            }
+            checkChapter(client, manga, latestMangadex, mangadexLinks);
             break;
           case 'mangasee':
             const {
@@ -41,68 +50,34 @@ const getLatestChapters = async (client) => {
               link,
             } = await mangaseeController.getLatestChapter(manga.source_id);
 
-            if (manga.latestChapter < latestMangasee) {
-              const chapter = {
-                title: manga.title,
-                cover: manga.cover,
-                chapterNumber: latestMangasee,
-                chapterLink: latestChapterUrl,
-                seriesLink: link,
-              };
+            const mangaseeLinks = {
+              chapterLink: latestChapterUrl,
+              seriesLink: link,
+            };
 
-              const newChapter = newChapterEmbed(chapter);
-              const channel = client.channels.cache.get(manga.textChannelId);
-
-              manga.latestChapter = latestMangasee;
-              await manga.save();
-
-              channel.send({ embeds: [newChapter] });
-            }
+            checkChapter(client, manga, latestMangasee, mangaseeLinks);
             break;
           case 'cubari':
             const { latestChapterUrl: cubariUrl, latestChapter: latestCubari } =
               await cubariController.getLatestChapter(manga.source_id);
 
-            if (manga.latestChapter < latestCubari) {
-              const chapter = {
-                title: manga.title,
-                cover: manga.cover,
-                chapterNumber: latestCubari,
-                chapterLink: cubariUrl,
-                seriesLink: manga.source_id,
-              };
+            const cubariLinks = {
+              chapterLink: cubariUrl,
+              seriesLink: manga.source_id,
+            };
 
-              const newChapter = newChapterEmbed(chapter);
-              const channel = client.channels.cache.get(manga.textChannelId);
-
-              manga.latestChapter = latestCubari;
-              await manga.save();
-
-              channel.send({ embeds: [newChapter] });
-            }
+            checkChapter(client, manga, latestCubari, cubariLinks);
             break;
           case 'tcbscans':
             const { latestChapterUrl: tcbUrl, latestChapter: latestTcb } =
               await tcbscansController.getLatestChapter(manga.source_id);
 
-            if (manga.latestChapter < latestTcb) {
-              const chapter = {
-                title: manga.title,
-                cover: manga.cover,
-                chapterNumber: latestTcb,
-                chapterLink: tcbUrl,
-                seriesLink: manga.source_id,
-              };
+            const tcbLinks = {
+              chapterLink: tcbUrl,
+              seriesLink: manga.source_id,
+            };
 
-              const newChapter = newChapterEmbed(chapter);
-              const channel = client.channels.cache.get(manga.textChannelId);
-
-              manga.latestChapter = latestTcb;
-              await manga.save();
-
-              channel.send({ embeds: [newChapter] });
-            }
-
+            checkChapter(client, manga, latestTcb, tcbLinks);
             break;
         }
       }
