@@ -41,6 +41,22 @@ const searchResultsMangaSee = (results) => {
   );
 };
 
+const searchResultsTcbScans = (results) => {
+  return new ActionRowBuilder().addComponents(
+    new StringSelectMenuBuilder()
+      .setCustomId('select-manga')
+      .setPlaceholder('Select a manga.')
+      .addOptions(
+        results.map((result, i) => {
+          return {
+            label: `${i + 1}. ${result.title}`,
+            value: result.link,
+          };
+        })
+      )
+  );
+};
+
 const mangaListSelectMenu = (mangas) => {
   return new ActionRowBuilder().addComponents(
     new StringSelectMenuBuilder()
@@ -60,5 +76,6 @@ const mangaListSelectMenu = (mangas) => {
 module.exports = {
   searchResultsMangaDex,
   searchResultsMangaSee,
+  searchResultsTcbScans,
   mangaListSelectMenu,
 };
