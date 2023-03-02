@@ -5,7 +5,10 @@ const baseUrl = 'https://mangasee123.com';
 
 const searchManga = async (title) => {
   try {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      ignoreDefaultArgs: ['--disable-extensions'],
+    });
     const page = await browser.newPage();
 
     const newTitle = title.replaceAll(' ', '%20');
@@ -45,7 +48,10 @@ const searchManga = async (title) => {
 
 const getMangaDetails = async (url) => {
   try {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      ignoreDefaultArgs: ['--disable-extensions'],
+    });
     const page = await browser.newPage();
 
     await page.goto(url);
