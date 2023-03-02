@@ -15,7 +15,7 @@ const searchResultsMangaDex = (results) => {
             .join(', ');
           return {
             label: `${i + 1}. ${result.attributes.title.en}`,
-            description: authors ? authors : 'Author Unknown',
+            description: authors ? authors.slice(0, 100) : 'Author Unknown',
             value: result.id,
           };
         })
