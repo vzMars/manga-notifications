@@ -139,6 +139,8 @@ const getLatestChapter = async (url) => {
       latestChapter = +latestChapterArr[latestChapterArr.length - 1];
     }
 
+    await browser.close();
+
     return { latestChapterUrl, latestChapter, link };
   } catch (error) {
     console.log(error);
