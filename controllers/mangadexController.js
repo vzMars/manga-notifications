@@ -44,7 +44,7 @@ const getLatestChapter = async (id) => {
 
     return { latestChapterId, latestChapter };
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
   }
 };
 

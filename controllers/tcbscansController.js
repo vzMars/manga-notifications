@@ -65,7 +65,7 @@ const getLatestChapter = async (url) => {
 
     return { latestChapterUrl, latestChapter };
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
   }
 };
 

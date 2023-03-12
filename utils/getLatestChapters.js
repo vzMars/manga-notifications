@@ -82,7 +82,7 @@ const getLatestChapters = async (client) => {
         }
       }
     } catch (error) {
-      console.log(error);
+      console.log(error.message);
     }
   });
 };

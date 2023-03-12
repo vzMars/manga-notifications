@@ -1,4 +1,6 @@
 const puppeteer = require('puppeteer');
+const Parser = require('rss-parser');
+const parser = new Parser();
 const baseUrl = 'https://mangasee123.com';
 
 const searchManga = async (title) => {
@@ -8,15 +10,6 @@ const searchManga = async (title) => {
       ignoreDefaultArgs: ['--disable-extensions'],
     });
     const page = await browser.newPage();
-    await page.setUserAgent(
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36'
-    );
-    await page.setExtraHTTPHeaders({
-      Accept:
-        'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-      'Accept-Language': 'en-US,en;q=0.9',
-      Pragma: 'no-cache',
-    });
 
     const newTitle = title.replaceAll(' ', '%20');
     const url = `${baseUrl}/search/?sort=v&desc=true&name=${newTitle}`;
@@ -60,15 +53,6 @@ const getMangaDetails = async (url) => {
       ignoreDefaultArgs: ['--disable-extensions'],
     });
     const page = await browser.newPage();
-    await page.setUserAgent(
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36'
-    );
-    await page.setExtraHTTPHeaders({
-      Accept:
-        'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-      'Accept-Language': 'en-US,en;q=0.9',
-      Pragma: 'no-cache',
-    });
 
     await page.goto(url);
 
@@ -99,51 +83,19 @@ const getMangaDetails = async (url) => {
 const getLatestChapter = async (url) => {
   let latestChapterUrl = '';
   let latestChapter = 0;
-  let link = '';
-
   try {
-    const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      ignoreDefaultArgs: ['--disable-extensions'],
-    });
-    const page = await browser.newPage();
-    await page.setUserAgent(
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36'
-    );
-    await page.setExtraHTTPHeaders({
-      Accept:
-        'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-      'Accept-Language': 'en-US,en;q=0.9',
-      Pragma: 'no-cache',
-    });
+    const feed = await parser.parseURL(url);
+    const link = feed.link;
 
-    await page.goto(url);
-
-    const items = await page.evaluate(() => [
-      ...document.querySelectorAll('item'),
-    ]);
-
-    if (items?.length) {
-      link = await page.evaluate(
-        () => document.querySelectorAll('link')[1].textContent
-      );
-      const chapterLink = await page.evaluate(
-        () => document.querySelectorAll('item link')[0].textContent
-      );
-      const guid = await page.evaluate(
-        () => document.querySelectorAll('guid')[0].textContent
-      );
-
-      const latestChapterArr = guid.split('-');
-      latestChapterUrl = chapterLink;
+    if (feed.items?.length) {
+      const latestChapterArr = feed.items[0].guid.split('-');
+      latestChapterUrl = feed.items[0].link;
       latestChapter = +latestChapterArr[latestChapterArr.length - 1];
     }
 
-    await browser.close();
-
     return { latestChapterUrl, latestChapter, link };
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
   }
 };
 
