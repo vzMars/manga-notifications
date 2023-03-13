@@ -27,7 +27,7 @@ const checkChapter = async (client, manga, latestChapter, links) => {
 };
 
 const getLatestChapters = async (client) => {
-  schedule.scheduleJob('*/5 * * * *', async () => {
+  schedule.scheduleJob('*/30 * * * *', async () => {
     try {
       const mangas = await Manga.find();
       for (const manga of mangas) {
