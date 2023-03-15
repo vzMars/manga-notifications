@@ -44,6 +44,7 @@ const getLatestChapter = async (id) => {
 
     return { latestChapterId, latestChapter };
   } catch (error) {
+    console.log(`error came from mangadex id:${id}`);
     console.log(error.message);
   }
 };
