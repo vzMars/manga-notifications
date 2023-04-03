@@ -49,6 +49,7 @@ const getLatestChapter = async (url) => {
   } catch (error) {
     console.log(`error came from ${url}`);
     console.log(error.message);
+    console.log(error);
   }
 };
 
