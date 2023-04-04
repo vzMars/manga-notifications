@@ -11,9 +11,17 @@ const Manga = require('../models/Manga');
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('remove')
-    .setDescription('Removes a manga from the subscription list.'),
+    .setDescription('Removes a manga from the subscription list.')
+    .addStringOption((option) =>
+      option
+        .setName('manga-title')
+        .setDescription('The title of the manga.')
+        .setRequired(true)
+    ),
+
   async execute(interaction) {
     await interaction.deferReply();
+    const mangaTitle = interaction.options.getString('manga-title');
 
     try {
       const mangas = await Manga.find();
@@ -22,16 +30,28 @@ module.exports = {
         throw Error(`The subscription list is empty, nothing to remove.`);
       }
 
+      const titleFilter = mangas
+        .filter((manga) =>
+          manga.title.toLowerCase().includes(mangaTitle.toLowerCase())
+        )
+        .slice(0, 25);
+
+      if (!titleFilter?.length) {
+        throw Error(
+          `No manga with that name on the subscription list, nothing to remove.`
+        );
+      }
+
       let mangasDescription =
         'Select the manga that will be removed from the subscription list.\n';
-      for (let i = 0; i < mangas.length; i++) {
-        const title = mangas[i].title;
-        const source = mangas[i].source;
+      for (let i = 0; i < titleFilter.length; i++) {
+        const title = titleFilter[i].title;
+        const source = titleFilter[i].source;
         mangasDescription += `${i + 1}. ${title} (${source})\n`;
       }
 
       const mangaList = defaultEmbed('Remove Manga', mangasDescription);
-      const selectRow = mangaListSelectMenu(mangas);
+      const selectRow = mangaListSelectMenu(titleFilter);
       const buttonRow = confirmCancelBtns();
 
       await interaction.editReply({
@@ -100,6 +120,7 @@ module.exports = {
         await interaction.editReply({ embeds: [cancel], components: [] });
       }
     } catch (err) {
+      console.log(err);
       const error = errorEmbed(err.message);
       await interaction.editReply({ embeds: [error], components: [] });
     }
