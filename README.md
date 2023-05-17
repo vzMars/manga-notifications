@@ -57,7 +57,7 @@ Each manga series that is stored on the database keeps track of the title, sourc
 
 ## Optimizations:
 
-There haven't been any issues with getting the latest chapter from the MangaDex source since I'm using their API. But with one of the other sources where the bot must scrape the website there have been some minor issues. The main source that has been giving issues is Cubari where I believe CloudFlare is stopping the bot from scraping the website for the latest chapter. I would like to fix this issue so that the bot is blocked from getting the latest chapter from Cubari. There is probably a better way to scrape this website without getting blocked and I would like to implement a better way to scrape from Cubari and even MangaSee and TCB Scans even though there are no issues with these two sites.
+There haven't been any issues with getting the latest chapter from the MangaDex source since I'm using their API. But with one of the other sources where the bot must scrape the website there have been some minor issues. The main source that has been giving issues is Cubari where it is stopping the bot from scraping the website for the latest chapter. I would like to fix this issue so that the bot is blocked from getting the latest chapter from Cubari. There is probably a better way to scrape this website without getting blocked and I would like to implement a better way to scrape from Cubari and even MangaSee and TCB Scans even though there are no issues with these two sites.
 
 ## Lessons Learned:
 
