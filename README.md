@@ -1,4 +1,4 @@
-# manga-notifications
+# MangaNotifications
 
 A self-hosted manga notification Discord bot that sends notifications to the server when a new chapter is released. Users are able to track a series from MangaDex, MangaSee, TCB Scans, and Cubari and receive new chapter notifications straight into their discord server.
 
