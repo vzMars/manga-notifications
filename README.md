@@ -30,7 +30,7 @@ This command retrieves all the series that the server is currently tracking and 
 
 This command takes in the title of the series that will be removed and returns a filtered list of series that was found in the database that match/contain that title. The user can then select a series in that list to remove.
 
-**/remove-alle**: Removes everything in the subscription list.
+**/remove-all**: Removes everything in the subscription list.
 
 This command removes every single series that is currently being tracked by the server from the database.
 
