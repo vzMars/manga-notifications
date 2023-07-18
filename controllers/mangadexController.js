@@ -47,12 +47,30 @@ const getLatestChapter = async (id) => {
       latestChapter = +response.data.data[0].attributes.chapter;
     }
 
-    return { latestChapterId, latestChapter };
+    const fileName = await getCover(id);
+
+    return { latestChapterId, latestChapter, fileName };
   } catch (error) {
     console.log(`error came from mangadex id:${id}`);
     console.log(error.message);
   }
 };
+
+const getCover = async (id) => {
+  const url = `${baseUrl}/manga/${id}?includes[]=cover_art`;
+  try {
+    const response = await axios.get(url);
+    const data = response.data.data;
+    const { fileName } = data.relationships.find(
+      (relationship) => relationship.type === 'cover_art'
+    ).attributes;
+
+    return fileName;
+  } catch (error) {
+    console.log("cover not found");
+    console.log(error.message);
+  }
+}
 
 module.exports = {
   searchManga,

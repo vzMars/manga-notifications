@@ -33,13 +33,20 @@ const getLatestChapters = async (client) => {
       for (const manga of mangas) {
         switch (manga.source) {
           case 'mangadex':
-            const { latestChapterId, latestChapter: latestMangadex } =
+            const { latestChapterId, latestChapter: latestMangadex, fileName } =
               await mangadexController.getLatestChapter(manga.source_id);
+
+            const cover = `https://mangadex.org/covers/${manga.source_id}/${fileName}`;
 
             const mangadexLinks = {
               chapterLink: `https://mangadex.org/chapter/${latestChapterId}`,
               seriesLink: `https://mangadex.org/title/${manga.source_id}`,
             };
+
+            if (manga.cover !== cover) {
+              manga.cover = cover;
+              await manga.save();
+            }
 
             checkChapter(client, manga, latestMangadex, mangadexLinks);
             break;
