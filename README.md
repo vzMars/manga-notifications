@@ -35,11 +35,11 @@ To self host this bot in your own server you would have to set up these environm
 - `DISCORD_TOKEN`: Discord bot token
 - `CLIENT_ID`: Discord application id
 - `GUILD_ID`: Discord server id
-- `DATABASE_URI`: MongoDB database uri
+- `DATABASE_URI`: Database uri
 
 ## How It's Made:
 
-**Tech used:** JavaScript, Node.js, Discord.js, MongoDB, Cheerio, Puppeteer, RSS-Parser
+**Tech used:** JavaScript, Node.js, Discord.js, PostgreSQL, Cheerio, Puppeteer, RSS-Parser
 
 This application was made using the discord.js library and has different ways of retrieving the latest chapter depending on the source. MangaSee also does not have a public API and since it is a SPA the Puppeteer library must be used for when the bot searches for the manga to add to the database. But luckily once the series has been added to the database the bot can use RSS-Parser to scrape the website's RSS feed and get the latest chapter. While with MangaDex they have their own API that can be used to fetch the latest chapter.
 
