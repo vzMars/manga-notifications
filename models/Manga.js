@@ -1,31 +1,39 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require("sequelize");
+const { sequelize } = require("../config/database");
 
-const MangaSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true,
+const Manga = sequelize.define(
+  "Manga",
+  {
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    cover: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    latestchapter: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    source: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    source_id: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    textchannelid: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   },
-  cover: {
-    type: String,
-    required: true,
-  },
-  latestChapter: {
-    type: Number,
-    required: true,
-  },
-  source: {
-    type: String,
-    required: true,
-  },
-  source_id: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  textChannelId: {
-    type: String,
-    required: true,
-  },
-});
+  {
+    timestamps: false,
+    tableName: "mangas",
+  }
+);
 
-module.exports = mongoose.model('Manga', MangaSchema);
+module.exports = Manga;

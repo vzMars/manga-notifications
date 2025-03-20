@@ -1,17 +1,17 @@
-const { SlashCommandBuilder, ComponentType } = require('discord.js');
-const { confirmCancelBtns } = require('../components/buttons');
-const { defaultEmbed, errorEmbed } = require('../components/embeds');
-const Manga = require('../models/Manga');
+const { SlashCommandBuilder, ComponentType } = require("discord.js");
+const { confirmCancelBtns } = require("../components/buttons");
+const { defaultEmbed, errorEmbed } = require("../components/embeds");
+const Manga = require("../models/Manga");
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName('remove-all')
-    .setDescription('Removes everything in the subscription list.'),
+    .setName("remove-all")
+    .setDescription("Removes everything in the subscription list."),
   async execute(interaction) {
     await interaction.deferReply();
 
     try {
-      const mangas = await Manga.find();
+      const mangas = await Manga.findAll();
 
       if (!mangas?.length) {
         throw Error(`The subscription list is empty, nothing to remove.`);
@@ -31,7 +31,7 @@ module.exports = {
 
       const buttonFilter = async (i) => {
         await i.deferUpdate();
-        return i.customId === 'confirm' || i.customId === 'cancel';
+        return i.customId === "confirm" || i.customId === "cancel";
       };
 
       const buttonMessage = await message
@@ -44,15 +44,17 @@ module.exports = {
           throw Error(`You didn't respond in time! Please rerun the command.`);
         });
 
-      if (buttonMessage.customId === 'confirm') {
-        const { deletedCount } = await Manga.deleteMany();
+      if (buttonMessage.customId === "confirm") {
+        const deletedCount = await Manga.destroy({
+          where: {},
+        });
 
         const successDescription = `Successfully removed ${deletedCount} series.`;
-        const success = defaultEmbed('Success!', successDescription);
+        const success = defaultEmbed("Success!", successDescription);
 
         await interaction.editReply({ embeds: [success], components: [] });
-      } else if (buttonMessage.customId === 'cancel') {
-        const cancel = defaultEmbed('Canceled!', 'Successfully canceled.');
+      } else if (buttonMessage.customId === "cancel") {
+        const cancel = defaultEmbed("Canceled!", "Successfully canceled.");
         await interaction.editReply({ embeds: [cancel], components: [] });
       }
     } catch (err) {

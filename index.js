@@ -1,8 +1,8 @@
-const { Client, Collection, GatewayIntentBits } = require('discord.js');
-const eventHandler = require('./handlers/eventHandler');
-const commandHandler = require('./handlers/commandHandler');
-const connectDB = require('./config/database');
-require('dotenv').config();
+require("dotenv").config();
+const { Client, Collection, GatewayIntentBits } = require("discord.js");
+const eventHandler = require("./handlers/eventHandler");
+const commandHandler = require("./handlers/commandHandler");
+const { connectDB, sequelize } = require("./config/database");
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds],
@@ -10,8 +10,19 @@ const client = new Client({
 
 client.commands = new Collection();
 
-connectDB();
-eventHandler(client);
-commandHandler(client);
+(async () => {
+  try {
+    await connectDB();
 
-client.login(process.env.DISCORD_TOKEN);
+    await sequelize.sync({ force: false });
+
+    console.log("Database synced");
+
+    eventHandler(client);
+    commandHandler(client);
+
+    client.login(process.env.DISCORD_TOKEN);
+  } catch (error) {
+    console.error("Error during initialization:", error);
+  }
+})();

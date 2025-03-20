@@ -2,66 +2,66 @@ const {
   SlashCommandBuilder,
   ChannelType,
   ComponentType,
-} = require('discord.js');
+} = require("discord.js");
 const {
   searchManga,
   getMangaDetails,
   getLatestChapter,
-} = require('../controllers/mangadexController');
-const { searchResultsMangaDex } = require('../components/selectMenus');
-const { confirmCancelBtns } = require('../components/buttons');
+} = require("../controllers/mangadexController");
+const { searchResultsMangaDex } = require("../components/selectMenus");
+const { confirmCancelBtns } = require("../components/buttons");
 const {
   mangaDetailsEmbed,
   defaultEmbed,
   errorEmbed,
-} = require('../components/embeds');
-const Manga = require('../models/Manga');
+} = require("../components/embeds");
+const Manga = require("../models/Manga");
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName('add-mangadex')
+    .setName("add-mangadex")
     .setDescription(
-      'Adds a manga to the subscription list. Chapter notifications come from mangadex.org'
+      "Adds a manga to the subscription list. Chapter notifications come from mangadex.org"
     )
     .addStringOption((option) =>
       option
-        .setName('manga-title')
-        .setDescription('The title of the manga.')
+        .setName("manga-title")
+        .setDescription("The title of the manga.")
         .setRequired(true)
     )
     .addChannelOption((option) =>
       option
-        .setName('text-channel')
+        .setName("text-channel")
         .setDescription(
-          'The text channel where all the notifications will go to.'
+          "The text channel where all the notifications will go to."
         )
         .addChannelTypes(ChannelType.GuildText)
         .setRequired(true)
     ),
   async execute(interaction) {
     await interaction.deferReply();
-    const mangaTitle = interaction.options.getString('manga-title');
-    const textChannelId = interaction.options.getChannel('text-channel').id;
+    const mangaTitle = interaction.options.getString("manga-title");
+    const textchannelid = interaction.options.getChannel("text-channel").id;
 
     try {
       const results = await searchManga(mangaTitle);
 
       if (!results?.length) {
-        throw Error('No results found.');
+        throw Error("No results found.");
       }
 
       let resultsDescription =
-        'Select the manga that will be added to the subscription list.\n';
+        "Select the manga that will be added to the subscription list.\n";
       for (let i = 0; i < results.length; i++) {
         const title = results[i].attributes.title.en;
         const year = results[i].attributes.year
           ? results[i].attributes.year
-          : 'Year Unknown';
+          : "Year Unknown";
 
         resultsDescription += `${i + 1}. ${title} (${year})\n`;
       }
 
-      const resultsList = defaultEmbed('Search Results', resultsDescription);
+      const resultsList = defaultEmbed("Search Results", resultsDescription);
       const selectRow = searchResultsMangaDex(results);
       const buttonRow = confirmCancelBtns();
 
@@ -74,7 +74,7 @@ module.exports = {
 
       const selectFilter = async (i) => {
         await i.deferUpdate();
-        return i.customId === 'select-manga';
+        return i.customId === "select-manga";
       };
 
       const selectMenuMessage = await message
@@ -107,7 +107,7 @@ module.exports = {
 
       const buttonFilter = async (i) => {
         await i.deferUpdate();
-        return i.customId === 'confirm' || i.customId === 'cancel';
+        return i.customId === "confirm" || i.customId === "cancel";
       };
 
       const buttonMessage = await message
@@ -120,8 +120,8 @@ module.exports = {
           throw Error(`You didn't respond in time! Please rerun the command.`);
         });
 
-      if (buttonMessage.customId === 'confirm') {
-        const existingManga = await Manga.findOne({ source_id });
+      if (buttonMessage.customId === "confirm") {
+        const existingManga = await Manga.findOne({ where: { source_id } });
 
         if (existingManga) {
           throw Error(
@@ -129,22 +129,22 @@ module.exports = {
           );
         }
 
-        const { latestChapter } = await getLatestChapter(source_id);
-        const source = 'mangadex';
+        const { latestchapter } = await getLatestChapter(source_id);
+        const source = "mangadex";
         await Manga.create({
           title,
           cover,
-          latestChapter,
+          latestchapter,
           source,
           source_id,
-          textChannelId,
+          textchannelid,
         });
 
         const successDescription = `Successfully added ${title}.`;
-        const success = defaultEmbed('Success!', successDescription);
+        const success = defaultEmbed("Success!", successDescription);
         await interaction.editReply({ embeds: [success], components: [] });
-      } else if (buttonMessage.customId === 'cancel') {
-        const cancel = defaultEmbed('Canceled!', 'Successfully canceled.');
+      } else if (buttonMessage.customId === "cancel") {
+        const cancel = defaultEmbed("Canceled!", "Successfully canceled.");
         await interaction.editReply({ embeds: [cancel], components: [] });
       }
     } catch (err) {
