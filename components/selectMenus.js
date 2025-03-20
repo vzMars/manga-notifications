@@ -1,21 +1,21 @@
-const { ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
+const { ActionRowBuilder, StringSelectMenuBuilder } = require("discord.js");
 
 const searchResultsMangaDex = (results) => {
   return new ActionRowBuilder().addComponents(
     new StringSelectMenuBuilder()
-      .setCustomId('select-manga')
-      .setPlaceholder('Select a manga.')
+      .setCustomId("select-manga")
+      .setPlaceholder("Select a manga.")
       .addOptions(
         results.map((result, i) => {
           const authors = result.relationships
-            .filter((relationship) => relationship.type === 'author')
+            .filter((relationship) => relationship.type === "author")
             .map((author) =>
-              author.attributes ? author.attributes.name : 'Author Unknown'
+              author.attributes ? author.attributes.name : "Author Unknown"
             )
-            .join(', ');
+            .join(", ");
           return {
             label: `${i + 1}. ${result.attributes.title.en}`,
-            description: authors ? authors.slice(0, 100) : 'Author Unknown',
+            description: authors ? authors.slice(0, 100) : "Author Unknown",
             value: result.id,
           };
         })
@@ -26,11 +26,11 @@ const searchResultsMangaDex = (results) => {
 const searchResultsMangaSee = (results) => {
   return new ActionRowBuilder().addComponents(
     new StringSelectMenuBuilder()
-      .setCustomId('select-manga')
-      .setPlaceholder('Select a manga.')
+      .setCustomId("select-manga")
+      .setPlaceholder("Select a manga.")
       .addOptions(
         results.map((result, i) => {
-          const authors = result.author.join(', ');
+          const authors = result.author.join(", ");
           return {
             label: `${i + 1}. ${result.title}`,
             description: authors,
@@ -41,27 +41,11 @@ const searchResultsMangaSee = (results) => {
   );
 };
 
-const searchResultsTcbScans = (results) => {
-  return new ActionRowBuilder().addComponents(
-    new StringSelectMenuBuilder()
-      .setCustomId('select-manga')
-      .setPlaceholder('Select a manga.')
-      .addOptions(
-        results.map((result, i) => {
-          return {
-            label: `${i + 1}. ${result.title}`,
-            value: result.link,
-          };
-        })
-      )
-  );
-};
-
 const mangaListSelectMenu = (mangas) => {
   return new ActionRowBuilder().addComponents(
     new StringSelectMenuBuilder()
-      .setCustomId('remove-manga')
-      .setPlaceholder('Remove a manga.')
+      .setCustomId("remove-manga")
+      .setPlaceholder("Remove a manga.")
       .addOptions(
         mangas.map((manga, i) => {
           return {
@@ -76,6 +60,5 @@ const mangaListSelectMenu = (mangas) => {
 module.exports = {
   searchResultsMangaDex,
   searchResultsMangaSee,
-  searchResultsTcbScans,
   mangaListSelectMenu,
 };
